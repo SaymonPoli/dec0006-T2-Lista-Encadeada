@@ -29,14 +29,42 @@ class MinhaListaEncadeada: public ListaEncadeadaAbstrata<T>
     }
 
     /**
+     * @brief Obtém o elemento da posição lista
+     * 
+     * @return Um inteiro maior ou igual a 0.
+     */
+    virtual Elemento<T>* getElemento(std::size_t posicao) const 
+    {
+        if(posicao < this->_tamanho)
+        {
+            Elemento<T>* currentElement = this->_primeiro;
+            Elemento<T>* nextElement = nullptr;
+
+            int i = 0;
+            
+            while (i <= posicao)
+            {
+                currentElement = currentElement->proximo;
+                i++;
+            }
+            return currentElement;
+
+        } else
+        {
+            std::cout << "Position not in vector" << std::endl;
+            return NULL;
+        }
+    };
+
+
+    /**
      * @brief Obtém a quantidade de itens na lista.
      * 
      * @return Um inteiro maior ou igual a 0.
      */
     virtual std::size_t tamanho() const
     {
-        //substitua a linha abaixo pelo algoritmo esperado
-        return 0;
+        return this->_tamanho;
     };
     
     /**
@@ -46,8 +74,7 @@ class MinhaListaEncadeada: public ListaEncadeadaAbstrata<T>
      */
     virtual bool vazia() const 
     {
-        //substitua a linha abaixo pelo algoritmo esperado
-        return 0;
+        return this->_tamanho == 0;
     };
 
     /**
@@ -61,8 +88,20 @@ class MinhaListaEncadeada: public ListaEncadeadaAbstrata<T>
      */
     virtual std::size_t posicao(T dado) const 
     {
-        //substitua a linha abaixo pelo algoritmo esperado
-        return 0;
+        if(this->vazia()) 
+            throw ExcecaoListaEncadeadaVazia();
+
+        Elemento<T> *element = this->_primeiro;
+
+        for(std::size_t posicao = 0; posicao < this->_tamanho; posicao++)
+        {
+            if(element->dado == dado)
+            {
+                return posicao;
+            }
+            element = element->proximo;
+        }
+        throw ExcecaoDadoInexistente();
     };
     
     /**
@@ -73,7 +112,15 @@ class MinhaListaEncadeada: public ListaEncadeadaAbstrata<T>
      */
     virtual bool contem(T dado) const
     {
-        //substitua a linha abaixo pelo algoritmo esperado
+        Elemento<T>* elemento = this->_primeiro;
+        for(int posicao = 0; posicao > this->_tamanho; posicao++)
+        {
+            if(dado == elemento->dado)
+            {
+                return true;
+            }
+            return false;
+        }
         return false;
     };
 
@@ -84,7 +131,10 @@ class MinhaListaEncadeada: public ListaEncadeadaAbstrata<T>
      */
     virtual void inserirNoInicio(T dado) 
     {
-        //escreva o algoritmo esperado
+        
+            this->_primeiro = new Elemento<T>(dado, this->_primeiro);
+            this->_tamanho++;
+
     };
 
     /**
@@ -111,7 +161,7 @@ class MinhaListaEncadeada: public ListaEncadeadaAbstrata<T>
      */
     virtual void inserirNoFim(T dado)
     {
-        //escreva o algoritmo esperado
+        // Elemento* newElemento = new Elemento(dado, nullptr);
     };
 
     /**

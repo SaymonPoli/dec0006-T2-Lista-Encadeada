@@ -19,6 +19,13 @@ public:
     virtual ~ListaEncadeadaAbstrata();
 
     /**
+     * @brief Obtém o elemento da posição lista
+     * 
+     * @return Um inteiro maior ou igual a 0.
+     */
+    virtual Elemento<T>* getElemento(std::size_t posicao) const = 0;
+
+    /**
      * @brief Obtém a quantidade de itens na lista.
      * 
      * @return Um inteiro maior ou igual a 0.

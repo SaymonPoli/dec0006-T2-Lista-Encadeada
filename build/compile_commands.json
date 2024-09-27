@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/workspaces/dec0006-T2-Lista-Encadeada/build",
+  "command": "/usr/bin/g++ -g -std=gnu++17 -o CMakeFiles/main.dir/main.cpp.o -c /workspaces/dec0006-T2-Lista-Encadeada/main.cpp",
+  "file": "/workspaces/dec0006-T2-Lista-Encadeada/main.cpp"
+}
+]
