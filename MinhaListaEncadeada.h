@@ -273,8 +273,22 @@ class MinhaListaEncadeada : public ListaEncadeadaAbstrata<T>
      * @param dado O item a ser removido. Se houver mais que um item com
      * o mesmo valor, remove a primeira ocorrência.
      */
-    virtual void remover(T dado) {
-        // escreva o algoritmo esperado
+    virtual void remover(T dado)
+    {
+        if (vazia())
+            throw ExcecaoListaEncadeadaVazia();
+
+        Elemento<T> *removeElement = this->_primeiro;
+        for (int i = 0; i <= this->_tamanho - 1; i++)
+        {
+            if (removeElement->dado == dado)
+            {
+                removerDe(i);
+                return;
+            }
+            removeElement = removeElement->proximo;
+        }
+        throw ExcecaoDadoInexistente();
     };
 };
 
