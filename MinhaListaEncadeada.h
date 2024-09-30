@@ -26,7 +26,15 @@ class MinhaListaEncadeada : public ListaEncadeadaAbstrata<T>
      */
     virtual ~MinhaListaEncadeada()
     {
-        // escreva o algoritmo esperado
+        Elemento<T> *deletingElement = this->_primeiro;
+        Elemento<T> *auxElement = nullptr;
+
+        while (deletingElement != nullptr)
+        {
+            auxElement = deletingElement;
+            deletingElement = deletingElement->proximo;
+            delete auxElement;
+        }
     }
 
     /**
