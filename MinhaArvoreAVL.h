@@ -11,7 +11,7 @@
 template <typename T>
 class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
 {
-    virtual ~MinhaArvoreAVL(){
+    virtual ~MinhaArvoreAVL() {
         // escreva o algoritmo esperado
     };
 
@@ -21,7 +21,10 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
      */
     virtual bool vazia() const
     {
-        // substitua a linha abaixo pelo algoritmo esperado
+        if (this->raiz == nullptr)
+        {
+            return true;
+        }
         return false;
     };
 
@@ -31,8 +34,7 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
      */
     virtual int quantidade() const
     {
-        // substitua a linha abaixo pelo algoritmo esperado
-        return -1;
+        return quantidadeDeNodos(this->raiz);
     };
 
     /**
@@ -42,8 +44,28 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
      */
     virtual bool contem(T chave) const
     {
-        // substitua a linha abaixo pelo algoritmo esperado
-        return false;
+        if (!this->raiz)
+        {
+            return false;
+        }
+        Nodo<T> *nodoAtual = this->raiz;
+
+        while (true)
+        {
+            if (nodoAtual == nullptr)
+                return false;
+            if (nodoAtual->chave == chave)
+                return true;
+
+            if (nodoAtual->chave < chave)
+            {
+                nodoAtual = nodoAtual->filhoEsquerda;
+            }
+            else
+            {
+                nodoAtual = nodoAtual->filhoDireita;
+            }
+        }
     };
 
     /**
@@ -53,23 +75,80 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
      */
     virtual std::optional<int> altura(T chave) const
     {
-        // substitua a linha abaixo pelo algoritmo esperado
-        return std::nullopt;
+        Nodo<T> *nodoAtual = this->raiz;
+
+        while (true)
+        {
+            if (nodoAtual == nullptr)
+                return std::nullopt;
+            if (nodoAtual->chave == chave)
+                return nodoAtual->altura;
+
+            if (nodoAtual->chave < chave)
+            {
+                nodoAtual = nodoAtual->filhoEsquerda;
+            }
+            else
+            {
+                nodoAtual = nodoAtual->filhoDireita;
+            }
+        }
     };
+
+    void inserirNewNodo(Nodo<T> *raiz, T dado)
+    {
+        if (dado < raiz->chave)
+        {
+            if (!raiz->filhoEsquerda)
+            {
+                raiz->filhoEsquerda = new Nodo<T>{dado};
+            }
+            else
+            {
+                inserirNewNodo(raiz->filhoEsquerda, dado);
+            }
+        }
+        else
+        {
+            if (!raiz->filhoDireita)
+            {
+                raiz->filhoDireita = new Nodo<T>{dado};
+            }
+            else
+            {
+                inserirNewNodo(raiz->filhoDireita, dado);
+            }
+        }
+        int alturaEsquerda = raiz->filhoEsquerda ? raiz->filhoEsquerda->altura : -1;
+        int alturaDireita = raiz->filhoDireita ? raiz->filhoDireita->altura : -1;
+
+        raiz->altura = std::max(alturaEsquerda, alturaDireita) + 1;
+    }
 
     /**
      * @brief Insere uma chave na arvore
      * @param chave chave a ser inserida
      */
-    virtual void inserir(T chave){
-        // escreva o algoritmo esperado
+    virtual void inserir(T chave)
+    {
+        if (!this->raiz)
+        {
+            this->raiz = new Nodo<T>{chave};
+        }
+        else
+        {
+            this->inserirNewNodo(this->raiz, chave);
+            // this->raiz->altura = std::max(this->raiz->filhoEsquerda->altura || -1,
+            //                       this->raiz->filhoDireita->altura || -1) +
+            //              1;
+        }
     };
 
     /**
      * @brief Remove uma chave da arvore
      * @param chave chave a removida
      */
-    virtual void remover(T chave){
+    virtual void remover(T chave) {
         // escreva o algoritmo esperado
     };
 
@@ -80,7 +159,25 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
      */
     virtual std::optional<T> filhoEsquerdaDe(T chave) const
     {
-        // substitua a linha abaixo pelo algoritmo esperado
+        Nodo<T> *nodoAtual = this->raiz;
+
+        while (true)
+        {
+            if (!nodoAtual)
+                break;
+            if (nodoAtual->chave == chave)
+                return nodoAtual->filhoEsquerda->chave;
+
+            if (nodoAtual->chave < chave)
+            {
+                nodoAtual = nodoAtual->filhoEsquerda;
+            }
+            else
+            {
+                nodoAtual = nodoAtual->filhoDireita;
+            }
+        }
+        // substitua  a linha abaixo pelo algoritmo esperado
         return std::nullopt;
     };
 
@@ -91,6 +188,27 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
      */
     virtual std::optional<T> filhoDireitaDe(T chave) const
     {
+        Nodo<T> *nodoAtual = this->raiz;
+
+        while (true)
+        {
+            if (!nodoAtual)
+                break;
+            if (nodoAtual->chave == chave)
+                return nodoAtual->filhoDireita->chave;
+
+            if (nodoAtual->chave < chave)
+            {
+                nodoAtual = nodoAtual->filhoEsquerda;
+            }
+            else
+            {
+                nodoAtual = nodoAtual->filhoDireita;
+            }
+        }
+        // substitua  a linha abaixo pelo algoritmo esperado
+        return std::nullopt;
+
         // substitua a linha abaixo pelo algoritmo esperado
         return std::nullopt;
     };
@@ -101,8 +219,9 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
      */
     virtual ListaEncadeadaAbstrata<T> *emOrdem() const
     {
-        // substitua a linha abaixo pelo algoritmo esperado
-        return nullptr;
+        MinhaListaEncadeada<T> *newLista = new MinhaListaEncadeada<T>;
+
+        return newLista;
     };
 
     /**
@@ -111,8 +230,10 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
      */
     virtual ListaEncadeadaAbstrata<T> *preOrdem() const
     {
-        // substitua a linha abaixo pelo algoritmo esperado
-        return nullptr;
+
+        MinhaListaEncadeada<T> *newLista = new MinhaListaEncadeada<T>;
+
+        return newLista;
     };
 
     /**
@@ -121,9 +242,21 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
      */
     virtual ListaEncadeadaAbstrata<T> *posOrdem() const
     {
-        // substitua a linha abaixo pelo algoritmo esperado
-        return nullptr;
+
+        MinhaListaEncadeada<T> *newLista = new MinhaListaEncadeada<T>;
+
+        return newLista;
     };
 };
+
+template <typename T>
+const int quantidadeDeNodos(Nodo<T> *nodo)
+{
+    if (nodo == nullptr)
+    {
+        return 0;
+    }
+    return 1 + quantidadeDeNodos(nodo->filhoEsquerda) + quantidadeDeNodos(nodo->filhoDireita);
+}
 
 #endif
