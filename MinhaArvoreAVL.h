@@ -2,6 +2,11 @@
 #define MINHA_ARVORE_AVL_HPP
 
 #include "ArvoreBinariaDeBusca.h"
+#include "ListaEncadeadaAbstrata.h"
+#include "MinhaListaEncadeada.h"
+#include <algorithm>
+#include <cstddef>
+#include <vector>
 
 /**
  * @brief Representa uma árvore AVL.
@@ -56,8 +61,7 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
                 return false;
             if (nodoAtual->chave == chave)
                 return true;
-
-            if (nodoAtual->chave < chave)
+            if (nodoAtual->chave > chave)
             {
                 nodoAtual = nodoAtual->filhoEsquerda;
             }
@@ -84,7 +88,7 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
             if (nodoAtual->chave == chave)
                 return nodoAtual->altura;
 
-            if (nodoAtual->chave < chave)
+            if (nodoAtual->chave > chave)
             {
                 nodoAtual = nodoAtual->filhoEsquerda;
             }
@@ -138,9 +142,6 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
         else
         {
             this->inserirNewNodo(this->raiz, chave);
-            // this->raiz->altura = std::max(this->raiz->filhoEsquerda->altura || -1,
-            //                       this->raiz->filhoDireita->altura || -1) +
-            //              1;
         }
     };
 
@@ -163,12 +164,12 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
 
         while (true)
         {
-            if (!nodoAtual)
+            if (!nodoAtual || !nodoAtual->filhoEsquerda)
                 break;
             if (nodoAtual->chave == chave)
                 return nodoAtual->filhoEsquerda->chave;
 
-            if (nodoAtual->chave < chave)
+            if (nodoAtual->chave > chave)
             {
                 nodoAtual = nodoAtual->filhoEsquerda;
             }
@@ -192,12 +193,12 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
 
         while (true)
         {
-            if (!nodoAtual)
+            if (!nodoAtual || !nodoAtual->filhoDireita)
                 break;
             if (nodoAtual->chave == chave)
                 return nodoAtual->filhoDireita->chave;
 
-            if (nodoAtual->chave < chave)
+            if (nodoAtual->chave > chave)
             {
                 nodoAtual = nodoAtual->filhoEsquerda;
             }
@@ -206,12 +207,21 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
                 nodoAtual = nodoAtual->filhoDireita;
             }
         }
-        // substitua  a linha abaixo pelo algoritmo esperado
-        return std::nullopt;
 
         // substitua a linha abaixo pelo algoritmo esperado
         return std::nullopt;
     };
+    enum ordem
+    {
+        pos,
+        em,
+        pre
+    };
+
+    void getListaRecursiva(Nodo<T> *raiz, ListaEncadeadaAbstrata<T> *lista, ordem ordem)
+    {
+
+    }
 
     /**
      * @brief Lista chaves visitando a arvore em ordem
@@ -219,10 +229,19 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
      */
     virtual ListaEncadeadaAbstrata<T> *emOrdem() const
     {
-        MinhaListaEncadeada<T> *newLista = new MinhaListaEncadeada<T>;
-
+        ListaEncadeadaAbstrata<T> *newLista = new MinhaListaEncadeada<T>;
+        getListaEmOrdem(this->raiz, newLista);
         return newLista;
     };
+
+    void getListaEmOrdem (Nodo<T> *raiz, ListaEncadeadaAbstrata<T> *lista) const
+    {
+        if(!raiz)
+            return;
+        getListaEmOrdem(raiz->filhoEsquerda, lista);
+        lista->inserirNoFim(raiz->chave);
+        getListaEmOrdem(raiz->filhoDireita, lista);
+    }
 
     /**
      * @brief Lista chaves visitando a arvore em pre-ordem
@@ -230,23 +249,38 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
      */
     virtual ListaEncadeadaAbstrata<T> *preOrdem() const
     {
-
-        MinhaListaEncadeada<T> *newLista = new MinhaListaEncadeada<T>;
-
+        ListaEncadeadaAbstrata<T> *newLista = new MinhaListaEncadeada<T>;
+        getListaPreOrdem(this->raiz, newLista);
         return newLista;
     };
 
+    void getListaPreOrdem (Nodo<T> *raiz, ListaEncadeadaAbstrata<T> *lista) const
+    {
+        if(!raiz)
+            return;
+        lista->inserirNoFim(raiz->chave);
+        getListaPreOrdem(raiz->filhoEsquerda, lista);
+        getListaPreOrdem(raiz->filhoDireita, lista);
+    }
     /**
      * @brief Lista chaves visitando a arvore em pos-ordem
      * @return Lista encadeada contendo as chaves em pos ordem.
      */
     virtual ListaEncadeadaAbstrata<T> *posOrdem() const
     {
-
-        MinhaListaEncadeada<T> *newLista = new MinhaListaEncadeada<T>;
-
+        ListaEncadeadaAbstrata<T> *newLista = new MinhaListaEncadeada<T>;
+        getListaPosOrdem(this->raiz, newLista);
         return newLista;
     };
+
+    void getListaPosOrdem (Nodo<T> *raiz, ListaEncadeadaAbstrata<T> *lista) const
+    {
+        if(!raiz)
+            return;
+        getListaPosOrdem(raiz->filhoEsquerda, lista);
+        getListaPosOrdem(raiz->filhoDireita, lista);
+        lista->inserirNoFim(raiz->chave);
+    }
 };
 
 template <typename T>
