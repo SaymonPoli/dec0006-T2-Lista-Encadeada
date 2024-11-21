@@ -1,3 +1,4 @@
+
 #ifndef MINHA_ARVORE_AVL_HPP
 #define MINHA_ARVORE_AVL_HPP
 
@@ -5,6 +6,7 @@
 #include "ListaEncadeadaAbstrata.h"
 #include "MinhaListaEncadeada.h"
 #include <algorithm>
+#include <cinttypes>
 #include <cstddef>
 #include <vector>
 
@@ -101,32 +103,27 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
 
     void inserirNewNodo(Nodo<T> *raiz, T dado)
     {
-        if (dado < raiz->chave)
-        {
-            if (!raiz->filhoEsquerda)
-            {
+        if (dado < raiz->chave) {
+            if (!raiz->filhoEsquerda) {
                 raiz->filhoEsquerda = new Nodo<T>{dado};
-            }
-            else
-            {
+            } else {
                 inserirNewNodo(raiz->filhoEsquerda, dado);
             }
-        }
-        else
-        {
-            if (!raiz->filhoDireita)
-            {
+        } else {
+            if (!raiz->filhoDireita) {
                 raiz->filhoDireita = new Nodo<T>{dado};
-            }
-            else
-            {
+            } else {
                 inserirNewNodo(raiz->filhoDireita, dado);
             }
         }
-        int alturaEsquerda = raiz->filhoEsquerda ? raiz->filhoEsquerda->altura : -1;
-        int alturaDireita = raiz->filhoDireita ? raiz->filhoDireita->altura : -1;
 
-        raiz->altura = std::max(alturaEsquerda, alturaDireita) + 1;
+        int fatorB = getBFactor(raiz);
+        if(fatorB == -2 && getBFactor(raiz->filhoDireita) <= 0) {
+            rotacaoSimplesEsquerda(raiz);
+        } else if (fatorB == 2 && getBFactor(raiz->filhoEsquerda) >= 0) {
+            rotacaoSimplesDireita(raiz);
+        }
+        raiz->altura = alturaPorNodo(raiz);
     }
 
     /**
@@ -135,12 +132,9 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
      */
     virtual void inserir(T chave)
     {
-        if (!this->raiz)
-        {
+        if (!this->raiz){
             this->raiz = new Nodo<T>{chave};
-        }
-        else
-        {
+        } else {
             this->inserirNewNodo(this->raiz, chave);
         }
     };
@@ -150,7 +144,13 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
      * @param chave chave a removida
      */
     virtual void remover(T chave) {
-        // escreva o algoritmo esperado
+
+        // Nodo<T> nodoParaDeletar = getNodoByChave(chave);
+
+        // if(this->altura(chave) == 0)
+        // {
+            // delete nodoParaDeletar;
+        // }
     };
 
     /**
@@ -169,16 +169,12 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
             if (nodoAtual->chave == chave)
                 return nodoAtual->filhoEsquerda->chave;
 
-            if (nodoAtual->chave > chave)
-            {
+            if (nodoAtual->chave > chave) {
                 nodoAtual = nodoAtual->filhoEsquerda;
-            }
-            else
-            {
+            } else {
                 nodoAtual = nodoAtual->filhoDireita;
             }
         }
-        // substitua  a linha abaixo pelo algoritmo esperado
         return std::nullopt;
     };
 
@@ -198,30 +194,14 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
             if (nodoAtual->chave == chave)
                 return nodoAtual->filhoDireita->chave;
 
-            if (nodoAtual->chave > chave)
-            {
+            if (nodoAtual->chave > chave){
                 nodoAtual = nodoAtual->filhoEsquerda;
-            }
-            else
-            {
+            } else {
                 nodoAtual = nodoAtual->filhoDireita;
             }
         }
-
-        // substitua a linha abaixo pelo algoritmo esperado
         return std::nullopt;
     };
-    enum ordem
-    {
-        pos,
-        em,
-        pre
-    };
-
-    void getListaRecursiva(Nodo<T> *raiz, ListaEncadeadaAbstrata<T> *lista, ordem ordem)
-    {
-
-    }
 
     /**
      * @brief Lista chaves visitando a arvore em ordem
@@ -281,6 +261,100 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
         getListaPosOrdem(raiz->filhoDireita, lista);
         lista->inserirNoFim(raiz->chave);
     }
+
+    Nodo<T> getNodoByChave(T chave)
+    {
+        Nodo<T> nodoAtual = &this->raiz;
+        while(true)
+        {
+            if(!nodoAtual) break;
+
+            if(chave < nodoAtual.chave) {
+                nodoAtual = nodoAtual.filhoEsquerda;
+            } else{
+                nodoAtual = nodoAtual.filhoDireita;
+            }
+        }
+        return nodoAtual;
+    }
+
+    Nodo<T>*getPaiByChave(int chave)
+    {
+        Nodo<T> *nodoAtual = this->raiz;
+        Nodo<T> *nodoPai;
+
+        while (true)
+        {
+            if(!nodoAtual)
+                break;
+            nodoPai = nodoAtual;
+
+            if(nodoAtual->chave > chave){
+                nodoAtual = nodoAtual->filhoEsquerda;
+            } else {
+                nodoAtual = nodoAtual->filhoDireita;
+            }
+        }
+        return nodoPai;
+    }
+
+    int alturaPorNodo(Nodo<T> *raiz)
+    {
+        int alturaEsquerda = raiz->filhoEsquerda ?
+                                raiz->filhoEsquerda->altura : -1;
+        int alturaDireita = raiz->filhoDireita ?
+                                raiz->filhoDireita->altura : -1;
+
+        return std::max(alturaEsquerda, alturaDireita) + 1;
+    }
+
+    void rotacaoSimplesDireita(Nodo<T> *raiz)
+    {
+        Nodo<T> *filhoEsquerda = raiz->filhoEsquerda;
+        raiz->filhoEsquerda = filhoEsquerda->filhoDireita;
+        filhoEsquerda->filhoDireita = raiz;
+
+        if (raiz == this->raiz) {
+            this->raiz = filhoEsquerda;
+        } else {
+            Nodo<T> *nodoPai = getPaiByChave(raiz->chave);
+            if (nodoPai) {
+                if (nodoPai->filhoEsquerda == raiz) {
+                    nodoPai->filhoEsquerda = filhoEsquerda;
+                } else {
+                    nodoPai->filhoDireita = filhoEsquerda;
+                }
+            }
+        }
+    }
+
+    void rotacaoSimplesEsquerda(Nodo<T> *raiz)
+    {
+        Nodo<T> *filhoDireita = raiz->filhoDireita;
+        raiz->filhoDireita = filhoDireita->filhoEsquerda;
+        filhoDireita->filhoEsquerda = raiz;
+
+        if(raiz == this->raiz){
+            this->raiz = filhoDireita;
+        } else {
+            Nodo<T> *nodoPai = getPaiByChave(raiz->chave);
+            if (nodoPai) {
+                if (nodoPai->filhoEsquerda == raiz) {
+                    nodoPai->filhoEsquerda = filhoDireita;
+                } else {
+                    nodoPai->filhoDireita = filhoDireita;
+                }
+            }
+        }
+    }
+
+    int getBFactor(Nodo<T> *nodo)
+    {
+        int alturaEsquerda = nodo->filhoEsquerda ? nodo->filhoEsquerda->altura : -1;
+        int alturaDireita = nodo->filhoDireita ? nodo->filhoDireita->altura : -1;
+        return alturaEsquerda - alturaDireita;
+    }
+
 };
 
 template <typename T>
