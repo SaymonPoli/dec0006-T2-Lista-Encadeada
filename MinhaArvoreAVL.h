@@ -156,25 +156,37 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
      * @brief Remove uma chave da arvore
      * @param chave chave a removida
      */
-    virtual void remover(T chave) {
-        Nodo<T> *&nodoParaDeletar = getNodoByChave(chave);
 
-        if(!nodoParaDeletar) return;
-
-        if(!nodoParaDeletar->filhoDireita && !nodoParaDeletar->filhoEsquerda){
-            delete nodoParaDeletar;
-            nodoParaDeletar = nullptr;
-        } else if(!nodoParaDeletar->filhoDireita || !nodoParaDeletar->filhoEsquerda){
-            Nodo<T>* nodo = nodoParaDeletar;
-            delete nodoParaDeletar;
-            nodoParaDeletar = nodo->filhoDireita ? nodo->filhoDireita : nodo->filhoEsquerda;
+    virtual void remover(T raiz) {
+        removerNodo(this->raiz, raiz);
+    }
+    void removerNodo(Nodo<T>*& raiz, T chave) {
+        if (!raiz) return;
+        if (chave < raiz->chave) {
+            removerNodo(raiz->filhoEsquerda, chave);
+        } else if (chave > raiz->chave) {
+            removerNodo(raiz->filhoDireita, chave);
         } else {
-            Nodo<T>*& nodoMinimo = getMinimo(nodoParaDeletar->filhoDireita);
-            Nodo<T>* aux = nodoParaDeletar->filhoDireita;
-            nodoParaDeletar = nodoMinimo;
-
+            if (!raiz->filhoEsquerda && !raiz->filhoDireita) {
+                delete raiz;
+                raiz = nullptr;
+            } else if (!raiz->filhoEsquerda || !raiz->filhoDireita) {
+                Nodo<T>* temp = raiz;
+                raiz = raiz->filhoEsquerda ? raiz->filhoEsquerda : raiz->filhoDireita;
+                delete temp;
+            } else {
+                Nodo<T>* minimo = getMinimo(raiz->filhoDireita);
+                raiz->chave = minimo->chave;
+                removerNodo(raiz->filhoDireita, minimo->chave);
+            }
         }
-    };
+        if (raiz) {
+            raiz->altura = 1 + std::max(alturaPorNodo(raiz->filhoEsquerda),
+                                        alturaPorNodo(raiz->filhoDireita));
+            rebalance(raiz);
+        }
+    }
+
 
     /**
      * @brief Busca a chave do filho a esquerda de uma (sub)arvore
@@ -385,13 +397,28 @@ class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
         return alturaEsquerda - alturaDireita;
     }
 
-    Nodo<T>*& getMinimo(Nodo<T>*& raiz){
-        Nodo<T>** nodoAtual = &raiz;
-        while((*nodoAtual)->filhoEsquerda)
-        {
-            nodoAtual = &(*nodoAtual)->filhoEsquerda;
+    void rebalance(Nodo<T>*& raiz) {
+        int fatorB = getBFactor(raiz);
+
+        if (fatorB > 1) {
+            if (getBFactor(raiz->filhoEsquerda) < 0) {
+                rotacaoSimplesEsquerda(raiz->filhoEsquerda);
+            }
+            rotacaoSimplesDireita(raiz);
         }
-        return *nodoAtual;
+        else if (fatorB < -1) {
+            if (getBFactor(raiz->filhoDireita) > 0) {
+                rotacaoSimplesDireita(raiz->filhoDireita);
+            }
+            rotacaoSimplesEsquerda(raiz);
+        }
+    }
+
+    Nodo<T>* getMinimo(Nodo<T>* raiz) {
+        while (raiz->filhoEsquerda) {
+            raiz = raiz->filhoEsquerda;
+        }
+        return raiz;
     }
 };
 
