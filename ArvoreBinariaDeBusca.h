@@ -11,11 +11,11 @@ struct Nodo
     int altura{0};
     Nodo* filhoEsquerda{nullptr};
     Nodo* filhoDireita{nullptr};
-    // ~Nodo(void)
-    // {
-    //     delete(filhoDireita);
-    //     delete(filhoEsquerda);
-    // }
+    ~Nodo(void)
+    {
+        // delete(filhoDireita);
+        // delete(filhoEsquerda);
+    }
 };
 
 template<typename T>

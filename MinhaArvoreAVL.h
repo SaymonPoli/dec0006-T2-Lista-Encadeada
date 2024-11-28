@@ -21,8 +21,16 @@ template <typename T>
 class MinhaArvoreAVL final : public ArvoreBinariaDeBusca<T>
 {
     virtual ~MinhaArvoreAVL() {
-        // escreva o algoritmo esperado
+
     };
+
+    void destrutorRecursivo(Nodo<T>*raiz)
+    {
+        if(!raiz) return;
+        destrutorRecursivo(raiz->filhoEsquerda);
+        destrutorRecursivo(raiz->filhoDireita);
+        delete raiz;
+    }
 
     /**
      * @brief Verifica se a arvore esta vazia
